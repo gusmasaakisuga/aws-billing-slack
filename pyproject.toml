@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "aws-billing-slack"
+version = "0.1.0"
+description = ""
+authors = ["Gus <gus@supercub.one>"]
+readme = "README.md"
+packages = [{include = "aws_billing_slack"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+boto3 = "^1.26.53"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

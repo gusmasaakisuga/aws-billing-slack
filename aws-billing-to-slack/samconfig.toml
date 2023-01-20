@@ -1,0 +1,11 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "billing-to-slack"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-tc6yhfe5nkke"
+s3_prefix = "billing-to-slack"
+region = "us-east-1"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "SlackWebhookUrl=\"\""
+image_repositories = []

@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  aws-billing-to-slack
+
+  Sample SAM Template for aws-billing-to-slack
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 10
+    MemorySize: 128
+
+Parameters:
+  SlackWebhookUrl:
+    Type: String
+    Default: ""
+
+Resources:
+  BillingIamRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: "SlackNotificationBillingLambdaPolicy"
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                  - "ce:GetCostAndUsage"
+                Resource: "*"
+
+  BillingToSlackFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Description: Retreive AWS billing data and send messsge to Slack
+    Properties:
+      CodeUri: function/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          SLACK_WEBHOOK_URL: !Ref SlackWebhookUrl
+      Role: !GetAtt BillingIamRole.Arn
+      Events:
+        NotifySlack:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 0 * * ? *)
+
+Outputs:
+  BillingToSlackFunction:
+    Description: "Lambda function to get billing and send to slack"
+    Value: !GetAtt BillingToSlackFunction.Arn
+
+  BillingToSlackFunctionIamRole:
+    Description: "IAM role for the billing to slack lambda function"
+    Value: !GetAtt BillingIamRole.Arn
